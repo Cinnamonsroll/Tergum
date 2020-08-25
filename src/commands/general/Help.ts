@@ -1,6 +1,6 @@
 import { BaseCommand } from "../../util/structures/BaseCommand";
 import BackupClient from "../../util/structures/BackupClient";
-import { Message } from "discord.js";
+import { Message, MessageEmbed } from "discord.js";
 
 export default class HelpCommand extends BaseCommand {
     constructor() {
@@ -15,6 +15,11 @@ export default class HelpCommand extends BaseCommand {
     }
 
     async run(client: BackupClient, message: Message, args: string[]) {
-        return message.channel.send("whatatheiohrsadhasiol")
+        const commands = client.commands;
+
+        if (!args[0]) {
+            const embed = new MessageEmbed()
+        }
+
     }
 }

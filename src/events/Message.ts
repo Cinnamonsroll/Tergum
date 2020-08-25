@@ -2,6 +2,7 @@ import { Message as Msg } from "discord.js";
 import BaseEvent from "../util/structures/BaseEvent";
 import BackupClient from "../util/structures/BackupClient";
 import { BaseCommand } from "../util/structures/BaseCommand";
+import Pinged from "../util/checks/Pinged";
 
 export default class Message extends BaseEvent {
     constructor() {
@@ -15,6 +16,9 @@ export default class Message extends BaseEvent {
         if (message.author.bot) return;
 
         const prefix = client.getPrefix(client, message.guild);
+
+        const pinged = new Pinged(message, "equal", client);
+        if (pinged.check()) return message.channel.send(`My prefix is set to \`${prefix}\` in \`${message.guild.name}\``);
 
         if (!message.content.startsWith(prefix)) return;
 

@@ -13,7 +13,7 @@ export default class Message extends BaseEvent {
         for (const [__, guild] of client.guilds.cache) {
             const GuildDoc = await Guild.findOne({ id: guild.id });
 
-            const prefix = GuildDoc.prefix ? GuildDoc.prefix : client.defaultPrefix;
+            const prefix = GuildDoc ? GuildDoc.prefix : client.defaultPrefix;
 
             client.cachePrefixes(guild, prefix);
         }

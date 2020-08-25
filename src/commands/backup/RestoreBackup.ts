@@ -65,8 +65,6 @@ export default class RestoreBackup extends BaseCommand {
                         return message.channel.send("You can't modify this setting unless you enable Roles! (1️⃣)").then(m => m.delete({ timeout: 10000 }));
                     }
                     rolePermFlag = !rolePermFlag;
-                        // channelPermFlag = false;
-                        // messageFlag = false;
                 break;
                 case "3️⃣":
                     channelsFlag = !channelsFlag;
@@ -123,11 +121,14 @@ export default class RestoreBackup extends BaseCommand {
         collector.on("end", async (__, reason) => {
 
             if (reason !== "success+") {
-                settingsEmbed.setDescription("Cancelled Restore");
+                settingsEmbed.setDescription("Cancelled Restore").setTitle("").setFooter("Cancelled");
                 return settings.edit(settingsEmbed);
             }
 
             settings.delete();
+
+            //@ts-ignore
+            message.channel.setName(`restoring-backup-${Backup.code}`);
 
             // Set server name and icon
             if (serverNameFlag) {
@@ -142,22 +143,25 @@ export default class RestoreBackup extends BaseCommand {
 
             // Delete old settings
             if (deleteOld) {
-                for (const [__, channel] of message.guild.channels.cache) {
-                    if (message.channel.id !== channel.id) {
-                        message.guild.channels.cache.get(channel.id).delete();
-                        await sleep(300);
-                    } else {
-                        //@ts-ignore
-                        message.channel.setName(`restoring-backup-${Backup.code}`);
+                // if (channelsFlag) {
+                    for (const [__, channel] of message.guild.channels.cache) {
+                        if (message.channel.id !== channel.id) {
+                            message.guild.channels.cache.get(channel.id).delete();
+                            await sleep(450);
+                        }
                     }
-                }
+                // }
 
-                for (const [__, role] of message.guild.roles.cache) {
-                    if (message.guild.id !== role.id) {
-                        message.guild.roles.cache.get(role.id).delete();
-                        await sleep(500);
+                // if (roleFlag) {
+                    for (const [__, role] of message.guild.roles.cache) {
+                        if (message.guild.id !== role.id) {
+                            if (!role.managed) {
+                                message.guild.roles.cache.get(role.id).delete().catch(err => console.log(err));
+                                await sleep(500);
+                            }
+                        }
                     }
-                }
+                // }
 
                 // for (const [__, emoji] of message.guild.emojis.cache) {
                 //     message.guild.emojis.cache.get(emoji.id).delete();
@@ -256,7 +260,7 @@ export default class RestoreBackup extends BaseCommand {
                                     disableMentions: "everyone",
                                 });
 
-                            }, 1500 * index);
+                            }, 2000 * index);
                         });
                     }
                 });
@@ -291,7 +295,9 @@ export default class RestoreBackup extends BaseCommand {
                 await sleep(200);
                 if (Backup.settings.verificationLevel) message.guild.setVerificationLevel(Backup.settings.verificationLevel); 
             }
-
+            await message.reply("successfully restored your server backup! You can now safely delete this channel.");
+            //@ts-ignore
+            await message.channel.setName("success");
             return sendMe.edit("Successfully restored your server backup!");
         });
     }
