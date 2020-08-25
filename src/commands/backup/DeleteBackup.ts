@@ -11,7 +11,7 @@ export default class DeleteBackup extends BaseCommand {
             description: "Delete a backup that is stored in the database.",
             name: "dbackup",
             permissions: ["ADMINISTRATOR"],
-            usage: "?dbackup <code>",
+            usage: "dbackup <code>",
             g_owner_only: true,
         });
     }

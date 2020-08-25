@@ -11,7 +11,7 @@ export default class Prefix extends BaseCommand {
             description: "Change the bots prefix",
             name: "prefix",
             permissions: ["MANAGE_GUILD"],
-            usage: "?prefix <prefix>",
+            usage: "prefix <prefix>",
         });
     }
 

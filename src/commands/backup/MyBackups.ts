@@ -11,7 +11,7 @@ export default class MyBackups extends BaseCommand {
             description: "View all the backups that you have",
             name: "backups",
             permissions: ["SEND_MESSAGES"],
-            usage: "?backups",
+            usage: "backups",
         });
     };
     async run (client: BackupClient, message: Message, args: string[]) {

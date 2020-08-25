@@ -11,7 +11,7 @@ export default class Ping extends BaseCommand {
             description: "Check the bots message and API latency",
             name: "ping",
             permissions: ["SEND_MESSAGES"],
-            usage: "?ping",
+            usage: "ping",
         });
     }
     async run (client: BackupClient, message: Message, args: string[]) {

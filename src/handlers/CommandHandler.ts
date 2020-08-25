@@ -26,7 +26,7 @@ export default new class CommandHandler {
                     if (command.aliases) {
                         command.aliases.forEach((alias: string) => client.aliases.set(alias, file.basename.toLowerCase()));
                     }
-                    client.commands.set(file.basename.toLowerCase(), command);
+                    // client.commands.set(file.basename.toLowerCase(), command);
                 }
                 console.log(`Successfully loaded ` + `${files.length} `.red + "command(s) in the " + path + " category");
             });

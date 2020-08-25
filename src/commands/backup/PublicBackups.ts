@@ -11,7 +11,7 @@ export default class PublicBackups extends BaseCommand {
             description: "View a list of some of the Public Backups others have created!",
             name: "pbackups",
             permissions: ["SEND_MESSAGES"],
-            usage: "?pbackups"
+            usage: "pbackups"
         });
     }
     async run (client: BackupClient, message: Message, args: string[]) {

@@ -18,6 +18,6 @@ export default class Message extends BaseEvent {
             client.cachePrefixes(guild, prefix);
         }
 
-        console.log(`Successfully logged in as ${client.user.tag}`);
+        console.log(`Successfully logged in as ` + `${client.user.tag}`.red);
     }
 }

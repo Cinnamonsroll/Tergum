@@ -11,7 +11,7 @@ export default class RestoreBackup extends BaseCommand {
             description: "Restore a backup by backup code",
             name: "rbackup",
             permissions: ["ADMINISTRATOR"],
-            usage: "?rbackup <code>",
+            usage: "rbackup <code>",
             aliases: ["restorebackup", "backupr", "backuprestore"],
             g_owner_only: true,
         });

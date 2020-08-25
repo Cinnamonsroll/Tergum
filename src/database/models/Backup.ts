@@ -7,7 +7,7 @@ const Backups = new Schema({
     private: { type: Boolean, required: true },
     data: { type: Object, default: { channels: [], roles: [], emojis: [] } },
     name: { type: String, required: true },
-    icon: { type: String, required: true },
+    icon: { type: String, required: false },
     settings: { type: Object, required: true },
     owner: { type: String, required: true },
 });

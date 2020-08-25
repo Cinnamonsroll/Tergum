@@ -12,7 +12,7 @@ export default class CreateBackup extends BaseCommand {
             description: "Create a backup of your entire server!",
             name: "cbackup",
             permissions: ["ADMINISTRATOR"],
-            usage: "?cbackup <private/public>",
+            usage: "cbackup <private/public>",
             g_owner_only: true,
         });
     }
@@ -122,6 +122,7 @@ export default class CreateBackup extends BaseCommand {
             });
         }
 
+        // Sort the channels so the categories are created first
         //@ts-ignore
         Backup.data.channels.sort((a, b) => {
             if (a.type < b.type) {
@@ -139,6 +140,7 @@ export default class CreateBackup extends BaseCommand {
         try {
             await Backup.save();
         } catch (err) {
+            console.log(err);
             return waitMsg.edit("Something went wrong while saving your server backup! Please try again later.");
         }
 
