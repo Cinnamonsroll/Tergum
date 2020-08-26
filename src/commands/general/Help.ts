@@ -106,20 +106,22 @@ export default class HelpCommand extends BaseCommand {
                         
 
                     } else if (info.pageType === "commands") {
-                        info.lastPages.push({
-                            type: info.pageType,
-                            embed: help.embeds[0], 
-                        });
-                        info.pageType = "command";
+                        if (info.pagesData[info.pageNumber][1]) {
+                            info.lastPages.push({
+                                type: info.pageType,
+                                embed: help.embeds[0], 
+                            });
+                            info.pageType = "command";
 
-                        const cmd = info.pagesData[info.pageNumber][0];
+                            const cmd = info.pagesData[info.pageNumber][0];
 
-                        const editMe = new MessageEmbed()   
-                            .setColor(client.colors.noColor)
-                            .setFooter("Use ↩️ to go back!")
-                            .setAuthor(`${cmd.name} Info`, client.user.displayAvatarURL({ format: "png" }))
-                            .setDescription(`**Command Name:** ${cmd.name}\n**Usage:** ${prefix}${cmd.usage}\n**Aliases:** ${cmd.aliases.length > 0 ? cmd.aliases.join(", ") : "None"}\n**Permissions:** ${cmd.permissions.join(", ")}`) 
-                        help.edit(editMe);
+                            const editMe = new MessageEmbed()   
+                                .setColor(client.colors.noColor)
+                                .setFooter("Use ↩️ to go back!")
+                                .setAuthor(`${cmd.name} Info`, client.user.displayAvatarURL({ format: "png" }))
+                                .setDescription(`**Command Name:** ${cmd.name}\n**Usage:** ${prefix}${cmd.usage}\n**Aliases:** ${cmd.aliases.length > 0 ? cmd.aliases.join(", ") : "None"}\n**Permissions:** ${cmd.permissions.join(", ")}`) 
+                            help.edit(editMe);
+                        }
                         
                     } else if (info.pageType === "command") return reaction.users.remove(user.id);
 
@@ -159,20 +161,23 @@ export default class HelpCommand extends BaseCommand {
                         
 
                     } else if (info.pageType === "commands") {
-                        info.lastPages.push({
-                            type: info.pageType,
-                            embed: help.embeds[0], 
-                        });
-                        info.pageType = "command";
 
-                        const cmd = info.pagesData[info.pageNumber][1];
+                        if (info.pagesData[info.pageNumber][1]) {
+                            info.lastPages.push({
+                                type: info.pageType,
+                                embed: help.embeds[0], 
+                            });
+                            info.pageType = "command";
 
-                        const editMe = new MessageEmbed()   
-                            .setColor(client.colors.noColor)
-                            .setFooter("Use ↩️ to go back!")
-                            .setAuthor(`${cmd.name} Info`, client.user.displayAvatarURL({ format: "png" }))
-                            .setDescription(`**Command Name:** ${cmd.name}\n**Usage:** ${prefix}${cmd.usage}\n**Aliases:** ${cmd.aliases.length > 0 ? cmd.aliases.join(", ") : "None"}\n**Permissions:** ${cmd.permissions.join(", ")}`) 
-                        help.edit(editMe);
+                            const cmd = info.pagesData[info.pageNumber][1];
+
+                            const editMe = new MessageEmbed()   
+                                .setColor(client.colors.noColor)
+                                .setFooter("Use ↩️ to go back!")
+                                .setAuthor(`${cmd.name} Info`, client.user.displayAvatarURL({ format: "png" }))
+                                .setDescription(`**Command Name:** ${cmd.name}\n**Usage:** ${prefix}${cmd.usage}\n**Aliases:** ${cmd.aliases.length > 0 ? cmd.aliases.join(", ") : "None"}\n**Permissions:** ${cmd.permissions.join(", ")}`) 
+                            help.edit(editMe);
+                        }
                         
                     } else if (info.pageType === "command") return reaction.users.remove(user.id);
 
@@ -182,8 +187,6 @@ export default class HelpCommand extends BaseCommand {
                 case "◀️":
                     if (info.pageNumber > 0 && info.pageType === "commands") {
                         info.pageNumber--;
-
-                        // const data = info.pagesData;
 
                         const cmdEmbed = new MessageEmbed()
                             for (const cmd of toDisplay[info.pageNumber]) {
@@ -200,8 +203,6 @@ export default class HelpCommand extends BaseCommand {
                 case "▶️":
                     if (info.pageNumber < toDisplay.length - 1 && info.pageType === "commands") {
                         info.pageNumber++;
-
-                        // const data = info.pagesData;
 
                         const cmdEmbed = new MessageEmbed()
                             for (const cmd of toDisplay[info.pageNumber]) {

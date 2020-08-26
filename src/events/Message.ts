@@ -22,7 +22,7 @@ export default class Message extends BaseEvent {
 
         if (!message.content.startsWith(prefix)) return;
 
-        const args = message.content.slice(1).trim().split(/ +/g);
+        const args = message.content.slice(prefix.length).trim().split(/ +/g);
         const commandName = args.shift().toLowerCase();
 
         const commandFile: BaseCommand = client.commands.get(commandName) || client.commands.get(client.aliases.get(commandName));
