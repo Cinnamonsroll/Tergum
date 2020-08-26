@@ -42,6 +42,7 @@ export default class UpdateBackup extends BaseCommand {
             .setAuthor(message.author.tag, message.author.displayAvatarURL({ format: "png" }))
             .setFooter("Choose your prefered backup update settings with the reactions below")
             .setTitle("Update Settings")
+            .setColor(client.colors.noColor)
             .setDescription(`1️⃣ Roles: ${roleFlag ? "On" : "Off"}\n${roleFlag ? `╚⇒2️⃣ Role Permissions: ${rolePermFlag ? "On" : "Off"}` : ""}\n3️⃣ Channels: ${channelsFlag ? "On" : "Off"}\n${channelsFlag && roleFlag ? `╠⇒ 4️⃣ Channel Permissions: ${channelPermFlag ? "On" : "Off"}\n` : ""}${channelsFlag ? `╚⇒ 5️⃣ Channel Messages: ${messageFlag ? "On" : "Off"}` : ""}\n6️⃣ Emojis: ${emojisFlag ? "On" : "Off"}\n7️⃣ Server Name: ${serverNameFlag ? "On" : "Off"}\n8️⃣ Server Icon: ${serverIconFlag ? "On" : "Off"}\n9️⃣ Server Settings: ${serverSettingsFlag ? "On" : "Off"}\n\n ✅ Start Update | ❌ Cancel Update`);
         const settings = await message.channel.send(settingsEmbed);
 

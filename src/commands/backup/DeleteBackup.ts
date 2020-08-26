@@ -26,6 +26,7 @@ export default class DeleteBackup extends BaseCommand {
 
         const deleteEmbed = new MessageEmbed()
             .setAuthor("Are you sure you want to delete your Backup?", message.author.displayAvatarURL({ format: "png" }))
+            .setColor(client.colors.noColor)
             .setDescription("This will **permanently** remove the backup from the database and is **irreversible**. Are you sure you want to continue?\n\n ✅ Continue | ❌ Cancel");
         const msg = await message.channel.send(deleteEmbed);
 

@@ -22,6 +22,8 @@ export default class CreateBackup extends BaseCommand {
         if (!private_public) return message.channel.send("Please specify if you would like to make this backup private or public");
         if (private_public !== "private" && private_public !== "public") return message.channel.send("Please specify if you would like to make this backup private or public. " + `\`${client.getPrefix(client, message.guild)}cbackup <public | private>\``);
 
+        if ((await Backups.findOne({ originalServer: message.guild.id }))) return message.channel.send(`You can only have one backup of a server at a time! Try \`${client.getPrefix(client, message.guild)}ubackup <code>\` instead!`)
+
         const waitMsg = await message.channel.send("<a:loading3:709992480757776405> Your server backup is being created. This can take some time, please wait...");
 
         const Backup = new Backups({
