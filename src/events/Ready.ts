@@ -18,6 +18,8 @@ export default class Message extends BaseEvent {
             client.cachePrefixes(guild, prefix);
         }
 
+        client.setStatus(client, ["server backups", `for @${client.user.username}`], "WATCHING", true);
+
         console.log(`Successfully logged in as ` + `${client.user.tag}`.red);
     }
 }

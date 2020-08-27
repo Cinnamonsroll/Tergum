@@ -1,4 +1,4 @@
-import { Snowflake, ClientOptions, Client, Guild, BaseClient, Collection } from "discord.js";
+import { Snowflake, ClientOptions, Client, Guild, Collection, ActivityType } from "discord.js";
 import { BaseCommand } from "./BaseCommand";
 
 export default class BackupClient extends Client {
@@ -25,4 +25,11 @@ export default class BackupClient extends Client {
     getPrefix (client: BackupClient, guild: Guild) {
         return client.cachedPrefixes.get(guild.id) || client.defaultPrefix;
     };
+    setStatus (client: BackupClient, statuses: string[] | string, presence: ActivityType, changing?: boolean) {
+        if (changing) {
+            let i = 0;
+            setTimeout(() => client.user.setActivity(statuses[i++ % statuses.length], { type: presence }), 1000 * 60 * 2);
+        //@ts-ignore
+        } else client.user.setActivity(statuses, { type: presence });
+    }
 }

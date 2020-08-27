@@ -67,6 +67,7 @@ export default class CreateBackup extends BaseCommand {
                 userLimit: channel.type === "voice" ? channel.userLimit : undefined,
                 //@ts-ignore
                 bitrate: channel.type === "voice" ? channel.bitrate : undefined,
+                oldId: channel.id,
                 rolePermissions: [],
                 messages: [],
             });
@@ -75,7 +76,7 @@ export default class CreateBackup extends BaseCommand {
             for (const [_, perm] of channel.permissionOverwrites) {
                 const role_member = message.guild.roles.cache.get(perm.id) == undefined ? undefined : message.guild.roles.cache.get(perm.id).name
 
-                Backup.data.channels.find(cc => cc.name === channel.name).rolePermissions.push({
+                Backup.data.channels.find(c => c.oldId === channel.id).rolePermissions.push({
                     permission: {
                         allow: perm.allow,
                         deny: perm.deny,
@@ -92,7 +93,7 @@ export default class CreateBackup extends BaseCommand {
                 const msgs = (await ch.messages.fetch({ limit: 100 })).array().reverse();
 
                 for (const msg of msgs) {
-                    Backup.data.channels.find(c => c.name === ch.name).messages.push({
+                    Backup.data.channels.find(c => c.oldId === ch.id).messages.push({
                         authr: msg.author.username,
                         avatar: msg.author.displayAvatarURL({ format: "png" }),
                         content: msg.content,

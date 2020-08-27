@@ -11,6 +11,7 @@ export default interface BackupData {
         rateLimit: number | undefined;
         userLimit: number | undefined;
         bitrate: number | undefined;
+        oldId: Snowflake;
 
         messages?: Array<{
             content: string;

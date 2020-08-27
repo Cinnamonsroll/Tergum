@@ -1,8 +1,10 @@
-import { Message as Msg } from "discord.js";
+import { Message as Msg, Collection } from "discord.js";
 import BaseEvent from "../util/structures/BaseEvent";
 import BackupClient from "../util/structures/BackupClient";
 import { BaseCommand } from "../util/structures/BaseCommand";
 import Pinged from "../util/checks/Pinged";
+import Cooldown from "../util/checks/Cooldown";
+const map = new Collection<string, Collection<string, number>>();
 
 export default class Message extends BaseEvent {
     constructor() {
@@ -28,6 +30,14 @@ export default class Message extends BaseEvent {
         const commandFile: BaseCommand = client.commands.get(commandName) || client.commands.get(client.aliases.get(commandName));
 
         if (commandFile) {
+
+            const cooldown = new Cooldown(map, commandFile, message.member);
+
+            const msg = cooldown.check();
+            if (msg) return message.channel.send(msg);
+
+            if (client.owners.some(id => id === message.author.id)) return commandFile.run(client, message, args);
+            if (commandFile.category === "owner") return message.channel.send("This command is locked to Bot Owner only!");
             if (commandFile.g_owner_only && message.author.id !== message.guild.ownerID) return message.channel.send("This command is locked to guild owner only.");
             return commandFile.run(client, message, args);
         }
