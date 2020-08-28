@@ -10,6 +10,9 @@ const Backups = new Schema({
     icon: { type: String, required: false },
     settings: { type: Object, required: true },
     owner: { type: String, required: true },
+    previousStates: { type: Array, default: [] },
+    parent: { type: Boolean, default: true },
+    date: { type: Date, required: true },
 });
 
 export default model<BackupType>("backups", Backups);

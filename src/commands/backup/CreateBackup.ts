@@ -16,13 +16,19 @@ export default class CreateBackup extends BaseCommand {
             g_owner_only: true,
         });
     }
-    async run (client: BackupClient, message: Message, args: string[]) {
+    async run (client: BackupClient, message: Message, args: string[], premium: number) {
         
         const private_public = args[0];
         if (!private_public) return message.channel.send("Please specify if you would like to make this backup private or public");
         if (private_public !== "private" && private_public !== "public") return message.channel.send("Please specify if you would like to make this backup private or public. " + `\`${client.getPrefix(client, message.guild)}cbackup <public | private>\``);
 
         if ((await Backups.findOne({ originalServer: message.guild.id }))) return message.channel.send(`You can only have one backup of a server at a time! Try \`${client.getPrefix(client, message.guild)}ubackup <code>\` instead!`)
+
+        const docs = (await Backups.find()).filter(data => data.owner === message.author.id).length;
+
+        if (premium === 0 && docs === 3) return message.channel.send("You have reached the maximum amount of backups for the free version! (3 Backups) Upgrade to premium for more storage!");
+        if (premium === 1 && docs === 5) return message.channel.send("You have reached the maximum amount of backups for Premium Tier 1! (5 Backups) Upgrade to Tier 2 or Tier 3 to get more or Unlimited Storage!");
+        if (premium === 2 && docs === 10) return message.channel.send("You have reached the maximum amount of backups for Premium Tier 2! (10 Backups) Upgrade to Tier 3 to get UNLIMITED Storage!");
 
         const waitMsg = await message.channel.send("<a:loading3:709992480757776405> Your server backup is being created. This can take some time, please wait...");
 
@@ -46,7 +52,8 @@ export default class CreateBackup extends BaseCommand {
                 afkChannel: message.guild.afkChannel ? message.guild.afkChannel.name : null,
                 afkTimeout: message.guild.afkTimeout,
                 vanityURL: message.guild.vanityURLCode ? message.guild.vanityURLCode : null,
-            }
+            },
+            date: new Date(),
         });
 
         // Backup all channels in the server
@@ -90,7 +97,7 @@ export default class CreateBackup extends BaseCommand {
             if (channel.type === "text" || channel.type === "news") {
                 // @ts-ignore
                 const ch: TextChannel = channel;
-                const msgs = (await ch.messages.fetch({ limit: 100 })).array().reverse();
+                const msgs = (await ch.messages.fetch({ limit: premium === 3 ? 100 : premium === 2 ? 75 : premium === 1 ? 50 : 10 })).array().reverse();
 
                 for (const msg of msgs) {
                     Backup.data.channels.find(c => c.oldId === ch.id).messages.push({

@@ -38,6 +38,6 @@ export abstract class BaseCommand {
         this.cooldown = BaseCommandInfo.cooldown;
     };
 
-    abstract async run(client: BackupClient, message: Message, args: Array<string>): Promise<any>;
+    abstract async run(client: BackupClient, message: Message, args: Array<string>, premium?: number): Promise<any>;
 
 }

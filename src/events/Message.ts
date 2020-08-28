@@ -4,6 +4,7 @@ import BackupClient from "../util/structures/BackupClient";
 import { BaseCommand } from "../util/structures/BaseCommand";
 import Pinged from "../util/checks/Pinged";
 import Cooldown from "../util/checks/Cooldown";
+import PremiumUser from "../util/checks/PremiumUser";
 const map = new Collection<string, Collection<string, number>>();
 
 export default class Message extends BaseEvent {
@@ -31,15 +32,20 @@ export default class Message extends BaseEvent {
 
         if (commandFile) {
 
-            const cooldown = new Cooldown(map, commandFile, message.member);
+            const premium = new PremiumUser(client, message.author);
+            const checkedUser = premium.check();
 
+            if (client.owners.some(id => id === message.author.id)) return commandFile.run(client, message, args, checkedUser);
+            const cooldown = new Cooldown(map, commandFile, message.member);
             const msg = cooldown.check();
             if (msg) return message.channel.send(msg);
 
-            if (client.owners.some(id => id === message.author.id)) return commandFile.run(client, message, args);
             if (commandFile.category === "owner") return message.channel.send("This command is locked to Bot Owner only!");
             if (commandFile.g_owner_only && message.author.id !== message.guild.ownerID) return message.channel.send("This command is locked to guild owner only.");
-            return commandFile.run(client, message, args);
+
+
+
+            return commandFile.run(client, message, args, checkedUser);
         }
 
     }

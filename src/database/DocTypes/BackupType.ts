@@ -23,5 +23,8 @@ export default interface BackupType extends Document {
         afkChannel: string | null;
         afkTimeout: number | null;
         vanityURL: string | null;
-    }
+    },
+    previousStates: Array<string>;
+    parent: boolean;
+    date: Date;
 }

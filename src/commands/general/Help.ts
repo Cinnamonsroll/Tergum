@@ -15,11 +15,19 @@ export default class HelpCommand extends BaseCommand {
     }
     async run(client: BackupClient, message: Message, args: string[]) {
         // const commands = client.commands;
+
+        const owner = client.owners.some(id => id === message.author.id);
         const prefix = client.getPrefix(client, message.guild);
         const categories = ["Backup", "General"];
         const categoryNums = {
             Backup: "1️⃣",
             General: "2️⃣",
+        }
+
+        if (owner) {
+            categories.push("Owner");
+            //@ts-ignore
+            categoryNums.Owner = "3️⃣";
         }
 
         const startEmbed = new MessageEmbed()
@@ -42,10 +50,11 @@ export default class HelpCommand extends BaseCommand {
         };
 
         let toDisplay = [];
+        if (owner) await Promise.all([ help.react("↩️"),  help.react("1️⃣"), help.react("2️⃣"), help.react("3️⃣"), help.react("◀️"), help.react("▶️"), help.react("❌") ]);
+        else await Promise.all([ help.react("↩️"),  help.react("1️⃣"), help.react("2️⃣"), help.react("◀️"), help.react("▶️"), help.react("❌") ]);
+        
 
-        await Promise.all([ help.react("↩️"),  help.react("1️⃣"), help.react("2️⃣"), help.react("◀️"), help.react("▶️"), help.react("❌") ]);
-
-        const filter = (reaction: MessageReaction, user: User) => user.id === message.author.id && ["↩️", "1️⃣", "2️⃣", "◀️", "▶️", "❌"].includes(reaction.emoji.name);
+        const filter = (reaction: MessageReaction, user: User) => user.id === message.author.id && ["↩️", "1️⃣", "2️⃣", "3️⃣", "◀️", "▶️", "❌"].includes(reaction.emoji.name);
 
         const collector = help.createReactionCollector(filter, { time: 1000 * 60 * 5 });
 
@@ -67,6 +76,12 @@ export default class HelpCommand extends BaseCommand {
                 case "2️⃣":
                 return numberFn(reaction, "general", user, 1);
 
+                case "3️⃣":
+                if (!owner) {
+                    reaction.users.remove(user.id);
+                    return message.channel.send("You can't access this section.");
+                }
+                return numberFn(reaction, "owner", user, null);
                 case "◀️":
                 return left_right("left", reaction, user);
 
@@ -81,13 +96,11 @@ export default class HelpCommand extends BaseCommand {
             reaction.users.remove(user.id);
         });
 
-        collector.on("end", (collected, reason) => {
-
-                const cancelled = new MessageEmbed()
-                    .setAuthor(reason === "Cancelled" ? "Closed Help" : "Help Expired", client.user.displayAvatarURL({ format: "png" }))
-                    .setColor(client.colors.noColor);
-                help.edit(cancelled);
-
+        collector.on("end", (_, reason) => {
+            const cancelled = new MessageEmbed()
+                .setAuthor(reason === "Cancelled" ? "Closed Help" : "Help Expired", client.user.displayAvatarURL({ format: "png" }))
+                .setColor(client.colors.noColor);
+            help.edit(cancelled);
         });
 
         // Functions
@@ -117,12 +130,12 @@ export default class HelpCommand extends BaseCommand {
                         newEmbed.addField(`${cmd.name} ${cmd.name === toDisplay[info.pageNumber][0].name ? "1️⃣" : "2️⃣"}`, cmd.description, true);
                     }
                     newEmbed.setColor(client.colors.noColor)
-                    .setAuthor(`Bacup Commands [${client.commands.filter(c => c.category === newPageType).size}]`, client.user.displayAvatarURL({ format: "png" }))
+                    .setAuthor(`${newPageType} Commands [${client.commands.filter(c => c.category === newPageType).size}]`, client.user.displayAvatarURL({ format: "png" }))
                     .setFooter(`Page ${info.pageNumber + 1}/${toDisplay.length} - Use ↩️ to go back or ◀️ and ▶️ to view all commands`)
                 help.edit(newEmbed);
 
             } else if (info.pageType === "commands") {
-                if (info.pagesData[info.pageNumber][1]) {
+                if (info.pagesData[info.pageNumber][num]) {
                     info.lastPages.push({
                         type: info.pageType,
                         embed: help.embeds[0], 
