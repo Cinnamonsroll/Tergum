@@ -13,6 +13,9 @@ export default class DeleteBackup extends BaseCommand {
             permissions: ["ADMINISTRATOR"],
             usage: "dbackup <code>",
             g_owner_only: true,
+            examples: [
+                "?dbackup qweRtyAsdF"
+            ]
         });
     }
     async run (client: BackupClient, message: Message, args: string[]) {

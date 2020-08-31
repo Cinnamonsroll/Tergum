@@ -1,5 +1,6 @@
 import { Snowflake, ClientOptions, Client, Guild, Collection, ActivityType } from "discord.js";
 import { BaseCommand } from "./BaseCommand";
+import { Job } from "node-schedule";
 
 export default class BackupClient extends Client {
     defaultPrefix: string;
@@ -9,6 +10,7 @@ export default class BackupClient extends Client {
     baseOptions?: ClientOptions;
     cachedPrefixes: Map<string, string>;
     colors: { noColor: "#2F3136" };
+    jobs: Map<string, Job>;
     constructor(defaultPrefix: string, owners: Array<Snowflake>, baseOptions?: ClientOptions) {
         super();
         this.commands = new Collection<string, BaseCommand>();
@@ -18,6 +20,7 @@ export default class BackupClient extends Client {
         this.baseOptions = baseOptions;
         this.defaultPrefix = defaultPrefix;
         this.colors = { noColor: "#2F3136" };
+        this.jobs = new Map<string, Job>();
     };
     cachePrefixes (guild: Guild, prefix: string) {
         this.cachedPrefixes.set(guild.id, prefix);

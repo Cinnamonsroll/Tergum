@@ -33,6 +33,8 @@ export default class RestoreBackup extends BaseCommand {
         let serverNameFlag = false;
         let serverIconFlag = false;
         let serverSettingsFlag = false;
+        let bansFlag = false;
+        let membersFlag = false;
         let deleteOld = false;
         let all = false;
 

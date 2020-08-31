@@ -17,7 +17,7 @@ export default class UpdateBackup extends BaseCommand {
             cooldown: 7200000,
         });
     }
-    async run (client: BackupClient, message: Message, args: string[], premium: number) {
+    async run (client: BackupClient, message: any, args: string[], premium: number, reccurence?: boolean) {
 
         const code = args[0];
 
@@ -25,23 +25,20 @@ export default class UpdateBackup extends BaseCommand {
 
         if (!backup) return message.channel.send("You can't update a backup that doesn't exist!");
 
-        if (message.author.id !== backup.owner) return message.channel.send("You can't update someone elses backup!");
+        if (!reccurence && message.author.id !== backup.owner) return message.channel.send("You can't update someone elses backup!");
 
-        if (message.guild.id !== backup.originalServer) {
-
-            return message.channel.send("You can't update a backup in a new server!");
-        }
+        if (!reccurence && message.guild.id !== backup.originalServer) return message.channel.send("You can't update a backup in a new server!");
+        
 
         if (!backup.parent) {
             const parentBackup = (await Backup.find()).filter(data => data.previousStates.includes(backup._id))[0];
             // console.log(parentBackup);
-            message.author.send("Your parents backup code is " + parentBackup.code);
+            message.author.send(`Your parents backup code is ${parentBackup.code}`);
             return message.channel.send("You can't update a child backup! Please update the parent. Check your DMs for your Parent's code.");
         }
-        const msg = await message.channel.send("<a:loading3:709992480757776405> Please wait while new data is stored... This can take some time...");
-
-        backup.parent = false;
-
+        let msg;
+        if (!reccurence) msg = await message.channel.send("<a:loading3:709992480757776405> Please wait while new data is stored... This can take some time...");
+        
         const dataToUpdate = {
             name: message.guild.name,
             icon: message.guild.iconURL({ format: "png" }),
@@ -66,6 +63,8 @@ export default class UpdateBackup extends BaseCommand {
                 channels: [],
                 roles: [],
                 emojis: [],
+                bans: [],
+                members: [],
             },
             date: new Date(),
         }
@@ -137,6 +136,34 @@ export default class UpdateBackup extends BaseCommand {
             });
         }
 
+        // If the user has Premium Tier 2+, backup all bans.
+        if (premium > 2) {
+            const Bans = await message.guild.fetchBans();
+            for (const [__, ban] of Bans) {
+                dataToUpdate.data.bans.push({
+                    user: ban.user.id,
+                    reason: ban.reason,
+                });
+            };
+        };
+    
+        // If the user has Premium Tier 3, backup every cached member.
+        if (premium === 3) {
+            const members = message.guild.members.cache;
+            for (const [__, member] of members) {
+                dataToUpdate.data.members.push({
+                    id: member.id,
+                    nickname: member.nickname,
+                    roles: [],
+                });
+                for (const [__, role] of member.roles.cache) {
+                    dataToUpdate.data.members.find(data => data.id === member.id).roles.push({
+                        name: role.name,
+                    });
+                }
+            }
+        }
+
 
         for (const [__, emoji] of message.guild.emojis.cache) {
             dataToUpdate.data.emojis.push({
@@ -152,9 +179,9 @@ export default class UpdateBackup extends BaseCommand {
 
         const newParent = new Backup(dataToUpdate);
 
-
         for (const id of backup.previousStates) {
             newParent.previousStates.unshift(id);
+            console.log(newParent.previousStates, "for loop")
         }
 
         newParent.previousStates.unshift(backup._id);
@@ -176,12 +203,14 @@ export default class UpdateBackup extends BaseCommand {
                 await Backup.findByIdAndRemove(toDeleteID);
                 backup.previousStates = [];
             } catch (err) {
-                return msg.edit("Something went wrong while updating your backup. Please try again later.");
+                if (!reccurence) return msg.edit("Something went wrong while updating your backup. Please try again later.");
             }
         }
 
         try {
             if (premium > 1) {
+                backup.parent = false;
+                newParent.previousStates.reverse();
                 await backup.updateOne(backup);
                 await newParent.save();
             } else {
@@ -189,10 +218,10 @@ export default class UpdateBackup extends BaseCommand {
             }
         } catch (err) {
             console.log(err);
-            return msg.edit("Something went wrong while updating your backup. Please try again later.");
+            if (!reccurence) return msg.edit("Something went wrong while updating your backup. Please try again later.");
         }
 
-        if (!backup.parent) {
+        if (!backup.parent && !reccurence) {
             try {
                 //@ts-ignore
                 await message.author.send(`Successfully updated your servers backup! Your new backup code is \`${dataToUpdate.code}\` for \`${message.guild.name}\``);
@@ -201,7 +230,9 @@ export default class UpdateBackup extends BaseCommand {
             }
         }
 
-        return msg.edit("Successfully updated your servers backup!");
+        if (!reccurence) return msg.edit("Successfully updated your servers backup!");
+        //@ts-ignore
+        else return dataToUpdate.code;
 
     };
 }

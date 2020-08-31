@@ -37,7 +37,7 @@ export default class MyBackups extends BaseCommand {
                 const oldBackup = await Backup.findById(id);
                 backupCodes.push({ code: oldBackup.code, date: oldBackup.date });
             }
-            sendData.push({ parent: backup.name, parentCode: backup.code, childrenCodes: backupCodes });
+            sendData.push({ parent: backup.name, parentCode: backup.code, childrenCodes: backupCodes.reverse() });
         }
 
         const splitData = [];

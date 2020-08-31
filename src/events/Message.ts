@@ -32,10 +32,10 @@ export default class Message extends BaseEvent {
 
         if (commandFile) {
 
-            const premium = new PremiumUser(client, message.author);
-            const checkedUser = premium.check();
+            const premium = new PremiumUser(client);
+            const premiumVal = premium.check(message.author);
 
-            if (client.owners.some(id => id === message.author.id)) return commandFile.run(client, message, args, checkedUser);
+            if (client.owners.some(id => id === message.author.id)) return commandFile.run(client, message, args, premiumVal);
             const cooldown = new Cooldown(map, commandFile, message.member);
             const msg = cooldown.check();
             if (msg) return message.channel.send(msg);
@@ -43,9 +43,7 @@ export default class Message extends BaseEvent {
             if (commandFile.category === "owner") return message.channel.send("This command is locked to Bot Owner only!");
             if (commandFile.g_owner_only && message.author.id !== message.guild.ownerID) return message.channel.send("This command is locked to guild owner only.");
 
-
-
-            return commandFile.run(client, message, args, checkedUser);
+            return commandFile.run(client, message, args, premiumVal);
         }
 
     }

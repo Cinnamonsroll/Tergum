@@ -14,6 +14,10 @@ export default class CreateBackup extends BaseCommand {
             permissions: ["ADMINISTRATOR"],
             usage: "cbackup <private/public>",
             g_owner_only: true,
+            examples: [
+                "?cbackup public",
+                "?cbackup private",
+            ]
         });
     }
     async run (client: BackupClient, message: Message, args: string[], premium: number) {
@@ -26,9 +30,10 @@ export default class CreateBackup extends BaseCommand {
 
         const docs = (await Backups.find()).filter(data => data.owner === message.author.id).length;
 
-        if (premium === 0 && docs === 3) return message.channel.send("You have reached the maximum amount of backups for the free version! (3 Backups) Upgrade to premium for more storage!");
-        if (premium === 1 && docs === 5) return message.channel.send("You have reached the maximum amount of backups for Premium Tier 1! (5 Backups) Upgrade to Tier 2 or Tier 3 to get more or Unlimited Storage!");
-        if (premium === 2 && docs === 10) return message.channel.send("You have reached the maximum amount of backups for Premium Tier 2! (10 Backups) Upgrade to Tier 3 to get UNLIMITED Storage!");
+        if (premium === 0 && docs === 10) return message.channel.send("You have reached the maximum amount of backups for the free version! (10 Backups) Upgrade to premium for more storage!");
+        if (premium === 1 && docs === 20) return message.channel.send("You have reached the maximum amount of backups for Premium Tier 1! (20 Backups) Upgrade to Tier 2 or Tier 3 to get 30 - 50 backups respectively");
+        if (premium === 2 && docs === 30) return message.channel.send("You have reached the maximum amount of backups for Premium Tier 2! (30 Backups) Upgrade to Tier 3 to get up tp 50 backups!");
+        if (premium === 3 && docs === 50) return message.channel.send("You have reached the maximum amount of backups! Please remove some before trying to create a new one!");
 
         const waitMsg = await message.channel.send("<a:loading3:709992480757776405> Your server backup is being created. This can take some time, please wait...");
 
@@ -130,6 +135,35 @@ export default class CreateBackup extends BaseCommand {
                 name: emoji.name,
                 url: emoji.url,
             });
+        }
+
+
+        // If the user has Premium Tier 2+, backup all bans.
+        if (premium > 2) {
+            const Bans = await message.guild.fetchBans();
+            for (const [__, ban] of Bans) {
+                Backup.data.bans.push({
+                    user: ban.user.id,
+                    reason: ban.reason,
+                });
+            };
+        };
+
+        // If the user has Premium Tier 3, backup every cached member.
+        if (premium === 3) {
+            const members = message.guild.members.cache;
+            for (const [__, member] of members) {
+                Backup.data.members.push({
+                    id: member.id,
+                    nickname: member.nickname,
+                    roles: [],
+                });
+                for (const [__, role] of member.roles.cache) {
+                    Backup.data.members.find(data => data.id === member.id).roles.push({
+                        name: role.name,
+                    });
+                }
+            }
         }
 
         // Sort the channels so the categories are created first

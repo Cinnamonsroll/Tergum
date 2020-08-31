@@ -18,11 +18,14 @@ export default class Prefix extends BaseCommand {
     async run(client: BackupClient, message: Message, args: string[]) {
         
         if (!args[0]) return message.channel.send("You can't set your prefix to nothing");
+
         
         let guild = await Guild.findOne({ id: message.guild.id });
         if (!guild) guild = new Guild({
             id: message.guild.id,
         });
+
+        if (args.join(" ") === guild.prefix) return message.channel.send("You can't set my prefix to the same thing.");
 
         guild.prefix = args.join(" ");
 
@@ -33,7 +36,7 @@ export default class Prefix extends BaseCommand {
             return message.channel.send("There was an error trying to save your prefix to the database.");
         }
 
-        return message.channel.send(`Successfully set your prefix to \`${args.join(" ")}\``);
+        return message.channel.send(`Successfully set my prefix in \`${message.guild.name}'s\` to \`${args.join(" ")}\``);
 
     }
 }
