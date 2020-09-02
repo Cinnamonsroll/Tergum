@@ -16,7 +16,7 @@ export default class RestoreBackup extends BaseCommand {
             g_owner_only: true,
         });
     }
-    async run (client: BackupClient, message: Message, args: string[]) {
+    async run (client: BackupClient, message: Message, args: string[], premium: number) {
         const code = args[0];
         
         const Backup = await Backups.findOne({ code });
@@ -44,12 +44,13 @@ export default class RestoreBackup extends BaseCommand {
             .setFooter("Choose your prefered backup restore settings with the reactions below")
             .setTitle("Backup Restore Settings")
             .setColor(client.colors.noColor)
-            .setDescription(`1️⃣ Roles: ${roleFlag ? "On" : "Off"}\n${roleFlag ? `╚⇒2️⃣ Role Permissions: ${rolePermFlag ? "On" : "Off"}` : ""}\n3️⃣ Channels: ${channelsFlag ? "On" : "Off"}\n${channelsFlag && roleFlag ? `╠⇒ 4️⃣ Channel Permissions: ${channelPermFlag ? "On" : "Off"}\n` : ""}${channelsFlag ? `╚⇒ 5️⃣ Channel Messages: ${messageFlag ? "On" : "Off"}` : ""}\n6️⃣ Emojis: ${emojisFlag ? "On" : "Off"}\n7️⃣ Server Name: ${serverNameFlag ? "On" : "Off"}\n8️⃣ Server Icon: ${serverIconFlag ? "On" : "Off"}\n9️⃣ Server Settings: ${serverSettingsFlag ? "On" : "Off"}\n🔟 Delete Old Settings: ${deleteOld ? "On" : "Off"}\n➕ Toggle All Options\n\n ✅ Start Backup | ❌ Cancel Backup`);
+            .setDescription(`1️⃣ Roles: ${roleFlag ? "On" : "Off"}\n${roleFlag ? `╚⇒2️⃣ Role Permissions: ${rolePermFlag ? "On" : "Off"}` : ""}\n3️⃣ Channels: ${channelsFlag ? "On" : "Off"}\n${channelsFlag && roleFlag ? `╠⇒ 4️⃣ Channel Permissions: ${channelPermFlag ? "On" : "Off"}\n` : ""}${channelsFlag ? `╚⇒ 5️⃣ Channel Messages: ${messageFlag ? "On" : "Off"}` : ""}\n6️⃣ Emojis: ${emojisFlag ? "On" : "Off"}\n7️⃣ Server Name: ${serverNameFlag ? "On" : "Off"}\n8️⃣ Server Icon: ${serverIconFlag ? "On" : "Off"}\n9️⃣ Server Settings: ${serverSettingsFlag ? "On" : "Off"}\n🔟 Delete Old Settings: ${deleteOld ? "On" : "Off"}\n${premium >= 2 ? bansFlag ? "⛔ Server Bans: On\n" : "⛔ Server Bans: Off\n" : ""}➕ Toggle All Options\n\n ✅ Start Backup | ❌ Cancel Backup`);
         const settings = await message.channel.send(settingsEmbed);
 
-        await Promise.all([ settings.react("1️⃣"), settings.react("2️⃣"), settings.react("3️⃣"), settings.react("4️⃣"), settings.react("5️⃣"), settings.react("6️⃣"), settings.react("7️⃣"), settings.react("8️⃣"), settings.react("9️⃣"), settings.react("🔟"), settings.react("➕"), settings.react("✅"), settings.react("❌") ]);
+        if (premium < 2) await Promise.all([ settings.react("1️⃣"), settings.react("2️⃣"), settings.react("3️⃣"), settings.react("4️⃣"), settings.react("5️⃣"), settings.react("6️⃣"), settings.react("7️⃣"), settings.react("8️⃣"), settings.react("9️⃣"), settings.react("🔟"), settings.react("➕"), settings.react("✅"), settings.react("❌") ]);
+        else await Promise.all([ settings.react("1️⃣"), settings.react("2️⃣"), settings.react("3️⃣"), settings.react("4️⃣"), settings.react("5️⃣"), settings.react("6️⃣"), settings.react("7️⃣"), settings.react("8️⃣"), settings.react("9️⃣"), settings.react("🔟"), settings.react("⛔"), settings.react("➕"), settings.react("✅"), settings.react("❌") ]);
 
-        const filter = (reaction: MessageReaction, user: User): boolean => message.author.id === user.id && ["1️⃣", "2️⃣", "3️⃣", "4️⃣", "5️⃣", "6️⃣", "7️⃣", "8️⃣", "9️⃣", "🔟", "➕", "✅", "❌"].includes(reaction.emoji.name); 
+        const filter = (reaction: MessageReaction, user: User): boolean => message.author.id === user.id && ["1️⃣", "2️⃣", "3️⃣", "4️⃣", "5️⃣", "6️⃣", "7️⃣", "8️⃣", "9️⃣", "🔟", "➕", "⛔", "✅", "❌"].includes(reaction.emoji.name); 
 
         const collector = settings.createReactionCollector(filter, { time: 1000 * 60 * 5 });
 
@@ -119,6 +120,9 @@ export default class RestoreBackup extends BaseCommand {
                         serverIconFlag = true;
                         serverSettingsFlag = true;
                         deleteOld = true;
+
+                        if (premium >= 2) bansFlag = true;
+
                     } else {
                         all = false;
                         messageFlag = false;
@@ -131,6 +135,13 @@ export default class RestoreBackup extends BaseCommand {
                         serverIconFlag = false;
                         serverSettingsFlag = false;
                         deleteOld = false;
+
+                        if (premium >= 2) bansFlag = false;
+                    }
+                break;
+                case "⛔":
+                    if (premium >= 2) {
+                        bansFlag = !bansFlag;
                     }
                 break;
                 case "✅":
@@ -145,7 +156,7 @@ export default class RestoreBackup extends BaseCommand {
 
             reaction.users.remove(_.id);
 
-            settingsEmbed.setDescription(`1️⃣ Roles: ${roleFlag ? "On" : "Off"}\n${roleFlag ? `╚⇒2️⃣ Role Permissions: ${rolePermFlag ? "On" : "Off"}` : ""}\n3️⃣ Channels: ${channelsFlag ? "On" : "Off"}\n${channelsFlag && roleFlag ? `╠⇒ 4️⃣ Channel Permissions: ${channelPermFlag ? "On" : "Off"}\n` : ""}${channelsFlag ? `╚⇒ 5️⃣ Channel Messages: ${messageFlag ? "On" : "Off"}` : ""}\n6️⃣ Emojis: ${emojisFlag ? "On" : "Off"}\n7️⃣ Server Name: ${serverNameFlag ? "On" : "Off"}\n8️⃣ Server Icon: ${serverIconFlag ? "On" : "Off"}\n9️⃣ Server Settings: ${serverSettingsFlag ? "On" : "Off"}\n🔟 Delete Old Settings: ${deleteOld ? "On" : "Off"}\n➕ Toggle All Options\n\n ✅ Start Backup | ❌ Cancel Backup`);
+            settingsEmbed.setDescription(`1️⃣ Roles: ${roleFlag ? "On" : "Off"}\n${roleFlag ? `╚⇒2️⃣ Role Permissions: ${rolePermFlag ? "On" : "Off"}` : ""}\n3️⃣ Channels: ${channelsFlag ? "On" : "Off"}\n${channelsFlag && roleFlag ? `╠⇒ 4️⃣ Channel Permissions: ${channelPermFlag ? "On" : "Off"}\n` : ""}${channelsFlag ? `╚⇒ 5️⃣ Channel Messages: ${messageFlag ? "On" : "Off"}` : ""}\n6️⃣ Emojis: ${emojisFlag ? "On" : "Off"}\n7️⃣ Server Name: ${serverNameFlag ? "On" : "Off"}\n8️⃣ Server Icon: ${serverIconFlag ? "On" : "Off"}\n9️⃣ Server Settings: ${serverSettingsFlag ? "On" : "Off"}\n🔟 Delete Old Settings: ${deleteOld ? "On" : "Off"}\n${premium >= 2 ? bansFlag ? "⛔ Server Bans: On\n" : "⛔ Server Bans: Off\n" : ""}➕ Toggle All Options\n\n ✅ Start Backup | ❌ Cancel Backup`);
             settings.edit(settingsEmbed);
         });
 
